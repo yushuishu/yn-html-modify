@@ -1,0 +1,20 @@
+[package]
+name = "yn-html-modify"
+version = "1.0.0"
+edition = "2021"
+
+# 简介
+authors = ["谁书-ss <1994583917@qq.com>"]
+description = "Yank Note导出HTML文档进行简单修改：增加左边目录，GitHub：https://github.com/purocean/yn"
+license = "Apache Licence 2.0"
+repository = "https://github.com/yushuishu/yn-html-modify"
+
+[build-dependencies]
+winres = "0.1.12"
+
+[dependencies]
+nipper = "0.1.9"
+regex = "1.10.6"
+
+
+
