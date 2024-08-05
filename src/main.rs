@@ -78,8 +78,6 @@ fn main() -> io::Result<()> {
     //      设置行内样式：style="width: 300px;height: 100%;font-size: 16px;overflow-y: auto;position: relative;"
     let mut table_contents_div = document.select("body").select("article").select("div.table-of-contents").first().clone();
     table_contents_div.set_attr("style", "width: 300px;height: 100%;font-size: 16px;overflow-y: auto;position: relative;");
-    //let original_body_text = document.select("body").first().html().to_string();
-    //let new_body_text = format!("{}\n{}", table_contents_div, original_body_text);
     document.select("body").first().prepend_selection(table_contents_div);
 
 
@@ -87,18 +85,16 @@ fn main() -> io::Result<()> {
     document.select("body").select("article").append_html("<br><br><br><br><br><br>");
 
 
-    // 写回到输出文件
     fs::write(output_file, document.html().to_string())?;
+
     println!("处理完成");
     Ok(())
 }
 
-// 定义一个扩展特征
+// 定义一个扩展特征，实现添加节点为第一个子孙节点
 pub trait SelectionExt<'a> {
     fn prepend_selection(&mut self, sel: Selection);
-    // 可以添加更多方法
 }
-// 为 Selection 实现这个特征
 impl<'a> SelectionExt<'a> for Selection<'a> {
     fn prepend_selection(&mut self, sel: Selection) {
         // 创建一个新的 Vec<Node> 来存储新的子节点顺序
