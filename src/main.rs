@@ -76,11 +76,9 @@ fn main() -> io::Result<()> {
     // 4、复制标签<div class="table-of-contents">...</div>内容，
     //      添加到<body>标签中，与标签<article>标签同级，并在标签<article>前面，
     //      设置行内样式：style="width: 300px;height: 100%;font-size: 16px;overflow-y: auto;position: relative;"
-    let mut table_contents_div = document.select("body").select("article").select("div.table-of-contents").first().clone();
-    table_contents_div.set_attr("style", "width: 300px;height: 100%;font-size: 16px;overflow-y: auto;position: relative;");
-    //let original_body_text = document.select("body").first().html().to_string();
-    //let new_body_text = format!("{}\n{}", table_contents_div, original_body_text);
-    document.select("body").first().prepend_selection(table_contents_div);
+    let table_contents_div = document.select("body").select("article").select("div.table-of-contents").first().html().to_string();
+    document.select("body").first().prepend_html(table_contents_div);
+    document.select("body").select("div.table-of-contents").first().set_attr("style", "width: 300px;height: 100%;font-size: 16px;overflow-y: auto;position: relative;");
 
 
     // 5、添加底部空行（导出html的文档，文档底部可能会看不到部分内容，通过添加换行符，显示正文内容）
@@ -89,16 +87,17 @@ fn main() -> io::Result<()> {
 
     // 写回到输出文件
     fs::write(output_file, document.html().to_string())?;
+
     println!("处理完成");
     Ok(())
 }
 
-// 定义一个扩展特征
+
 pub trait SelectionExt<'a> {
     fn prepend_selection(&mut self, sel: Selection);
-    // 可以添加更多方法
+    fn prepend_html(&mut self, html: String);
 }
-// 为 Selection 实现这个特征
+
 impl<'a> SelectionExt<'a> for Selection<'a> {
     fn prepend_selection(&mut self, sel: Selection) {
         // 创建一个新的 Vec<Node> 来存储新的子节点顺序
@@ -119,4 +118,25 @@ impl<'a> SelectionExt<'a> for Selection<'a> {
             self.append_html(Selection::from(child).html());
         }
     }
+
+    fn prepend_html(&mut self, html: String)  {
+        // 创建一个新的 Vec<Node> 克隆存储旧的子节点
+        let mut new_children = vec![];
+        for child in self.children().nodes() {
+            new_children.push(child.clone());
+        }
+
+        // 移除所有的子节点
+        self.set_html("");
+
+        // 添加新节点
+        self.set_html(html);
+
+        // 将旧的子节点再设置回去
+        for child in new_children {
+            // 不可以使用append_selection()方法添加
+            self.append_html(Selection::from(child).html());
+        }
+    }
+
 }
